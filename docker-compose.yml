@@ -1,0 +1,28 @@
+version: "3"
+services:
+  redis:
+    image: redis/redis-stack
+    container_name: redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+  bot:
+    build: src/
+    container_name: mogior_anime_bot
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      TELEGRAM_API_KEY: ${TELEGRAM_API_KEY}
+      DATA_BASE_URL: ${DATA_BASE_URL}
+      DATA_BASE_PORT: ${DATA_BASE_PORT}
+      DATA_BASE_NAME: ${DATA_BASE_NAME}
+      DATA_BASE_USER: ${DATA_BASE_USER}
+      DATA_BASE_PASS: ${DATA_BASE_PASS}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
